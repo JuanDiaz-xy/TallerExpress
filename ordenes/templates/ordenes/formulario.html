@@ -1,0 +1,99 @@
+{% extends 'ordenes/base.html' %}
+{% block contenido %}
+<div class="mb-4">
+  <a href="{% url 'ordenes:lista' %}" class="link-back">← Volver al listado</a>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-xl-7">
+    <div class="panel p-4 p-md-5">
+      <div class="panel-header">
+        <p class="text-uppercase text-danger fw-bold mb-1" style="letter-spacing:.08em; font-size:.8rem;">Formulario</p>
+        <h1 class="h3 mb-1">{{ titulo }}</h1>
+        <p class="helper-text mb-0">Completa los campos requeridos para guardar la información de la orden.</p>
+      </div>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% for campo in form %}
+          <div class="mb-3">
+            <label for="{{ campo.id_for_label }}" class="form-label">{{ campo.label }}</label>
+            {{ campo }}
+            {% if campo.name == 'vehiculo' %}
+              <div class="form-text helper-text" id="vehiculo-ayuda">Selecciona primero un cliente para ver únicamente sus vehículos.</div>
+            {% endif %}
+            {% if campo.errors %}
+              <div class="text-danger small mt-1" role="alert">{{ campo.errors|striptags }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <div class="d-flex flex-wrap gap-2 pt-2">
+          <button type="submit" class="btn btn-main">{% if modo == 'editar' %}Guardar cambios{% else %}Crear orden{% endif %}</button>
+          <a href="{% url 'ordenes:lista' %}" class="btn btn-darkline">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const cliente = document.getElementById('id_cliente');
+  const vehiculo = document.getElementById('id_vehiculo');
+  const ayuda = document.getElementById('vehiculo-ayuda');
+  if (!cliente || !vehiculo) return;
+
+  const url = "{% url 'ordenes:vehiculos_cliente' %}";
+  const opcionesOriginales = vehiculo.innerHTML;
+  const elegidoAlAbrir = vehiculo.value;
+  let secuencia = 0;
+
+  async function actualizarVehiculos(conservarSeleccion) {
+    const estaConsulta = ++secuencia;
+    const idCliente = cliente.value;
+    const anterior = conservarSeleccion ? elegidoAlAbrir : '';
+    vehiculo.innerHTML = '<option value="">Selecciona un vehículo</option>';
+    vehiculo.disabled = true;
+    if (!idCliente) {
+      ayuda.textContent = 'Selecciona primero un cliente.';
+      return;
+    }
+    ayuda.textContent = 'Consultando vehículos asociados al cliente…';
+    try {
+      const respuesta = await fetch(url + '?cliente=' + encodeURIComponent(idCliente), {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!respuesta.ok) throw new Error('Error HTTP ' + respuesta.status);
+      const datos = await respuesta.json();
+      if (estaConsulta !== secuencia) return;
+      for (const item of datos.vehiculos) {
+        const opcion = new Option(item.placa + ' — ' + item.marca + ' ' + item.modelo, String(item.id));
+        vehiculo.add(opcion);
+      }
+      vehiculo.disabled = false;
+      if (anterior && datos.vehiculos.some(item => String(item.id) === anterior)) {
+        vehiculo.value = anterior;
+      }
+      ayuda.textContent = datos.vehiculos.length
+        ? 'Elige uno de los vehículos de este cliente.'
+        : 'Este cliente no tiene vehículos registrados. Necesitas uno para crear la orden.';
+    } catch (error) {
+      if (estaConsulta !== secuencia) return;
+      vehiculo.innerHTML = opcionesOriginales;
+      vehiculo.disabled = false;
+      if (conservarSeleccion) vehiculo.value = elegidoAlAbrir;
+      ayuda.textContent = 'No se pudo filtrar el listado. Verifica que el vehículo pertenezca al cliente.';
+    }
+  }
+
+  cliente.addEventListener('change', function () { actualizarVehiculos(false); });
+  actualizarVehiculos(true);
+});
+</script>
+{% endblock %}

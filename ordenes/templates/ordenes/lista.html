@@ -1,0 +1,78 @@
+{% extends 'ordenes/base.html' %}
+{% block contenido %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+  <div>
+    <p class="text-uppercase text-danger fw-bold mb-1" style="letter-spacing:.08em; font-size:.8rem;">Panel principal</p>
+    <h1 class="h3 mb-1">Gestión de órdenes</h1>
+  </div>
+  <a href="{% url 'ordenes:crear' %}" class="btn btn-main" id="crear-orden">+ Nueva orden</a>
+</div>
+
+
+<div class="panel p-3 p-md-4">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead>
+        <tr>
+          <th>N.º</th>
+          <th>Cliente</th>
+          <th>Vehículo</th>
+          <th>Mecánico</th>
+          <th>Estado</th>
+          <th>Ingreso</th>
+          <th class="text-end">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for orden in ordenes %}
+          <tr>
+            <td class="fw-bold">{{ orden.numero_orden }}</td>
+            <td>{{ orden.cliente.nombre }}</td>
+            <td>{{ orden.vehiculo.placa }}</td>
+            <td>{{ orden.mecanico.nombre|default:'—' }}</td>
+            <td><span class="badge-estado">{{ orden.get_estado_display }}</span></td>
+            <td>{{ orden.fecha_ingreso|date:'d/m/Y' }}</td>
+            <td class="text-end text-nowrap">
+              <a href="{% url 'ordenes:editar' orden.pk %}" class="btn btn-sm btn-darkline">Editar</a>
+              <a href="{% url 'ordenes:eliminar' orden.pk %}" class="btn btn-sm btn-soft">Eliminar</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="7" class="text-center py-5 helper-text">No hay órdenes registradas.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if ordenes.paginator.num_pages > 1 %}
+  <nav aria-label="Paginación de órdenes" class="mt-4">
+    <ul class="pagination justify-content-center flex-wrap gap-1">
+      {% if ordenes.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ ordenes.previous_page_number }}">« Anterior</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">« Anterior</span></li>
+      {% endif %}
+
+      {% for pagina in paginas %}
+        {% if pagina == ordenes.paginator.ELLIPSIS %}
+          <li class="page-item disabled"><span class="page-link">…</span></li>
+        {% elif pagina == ordenes.number %}
+          <li class="page-item active"><span class="page-link" aria-current="page">{{ pagina }}</span></li>
+        {% else %}
+          <li class="page-item"><a class="page-link" href="?page={{ pagina }}">{{ pagina }}</a></li>
+        {% endif %}
+      {% endfor %}
+
+      {% if ordenes.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ ordenes.next_page_number }}">Siguiente »</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">Siguiente »</span></li>
+      {% endif %}
+    </ul>
+    <p class="text-center helper-text small mb-0">Página {{ ordenes.number }} de {{ ordenes.paginator.num_pages }}</p>
+  </nav>
+{% endif %}
+{% endblock %}

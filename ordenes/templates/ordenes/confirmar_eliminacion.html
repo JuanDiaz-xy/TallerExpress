@@ -1,0 +1,39 @@
+{% extends 'ordenes/base.html' %}
+{% block contenido %}
+<div class="mb-4">
+  <a href="{% url 'ordenes:lista' %}" class="link-back">← Volver al listado</a>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="panel p-4 p-md-5">
+      <div class="panel-header">
+        <p class="text-uppercase text-danger fw-bold mb-1" style="letter-spacing:.08em; font-size:.8rem;">Confirmación</p>
+        <h1 class="h3 mb-1">Eliminar orden</h1>
+        <p class="helper-text mb-0">Verifica la información antes de eliminar el registro.</p>
+      </div>
+
+      <p class="mb-3">¿Deseas eliminar definitivamente la orden <strong>{{ orden.numero_orden }}</strong>?</p>
+
+      <div class="border rounded-4 p-3 mb-4 bg-light-subtle">
+        <dl class="row mb-0">
+          <dt class="col-sm-3">Cliente</dt>
+          <dd class="col-sm-9">{{ orden.cliente.nombre }}</dd>
+          <dt class="col-sm-3">Vehículo</dt>
+          <dd class="col-sm-9">{{ orden.vehiculo.placa }}</dd>
+          <dt class="col-sm-3">Estado</dt>
+          <dd class="col-sm-9">{{ orden.get_estado_display }}</dd>
+        </dl>
+      </div>
+
+      <div class="alert alert-danger">Esta acción no se puede deshacer.</div>
+
+      <form method="post" class="d-flex flex-wrap gap-2">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-main">Sí, eliminar orden</button>
+        <a href="{% url 'ordenes:lista' %}" class="btn btn-darkline">Cancelar</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
