@@ -1,83 +1,89 @@
-# TallerExpress
+# TallerExpress — GA7-220501096-AA2-EV02
 
-Sistema web para gestionar órdenes de servicio de un taller mecánico.
-
-Desarrollado con Python, Django y MySQL.
-
-## Funcionalidades
-
-- Consultar órdenes de servicio.
-- Crear nuevas órdenes.
-- Editar órdenes existentes.
-- Eliminar órdenes con confirmación.
-- Validar formularios y relaciones cliente-vehículo.
-- Consultar registros con paginación.
+TallerExpress es una aplicación académica para registrar y consultar órdenes de servicio de un taller. Permite crear, editar, listar y eliminar órdenes, relacionando cada vehículo con su cliente y asignando, cuando corresponde, un mecánico.
 
 ## Requisitos
 
-- Windows
-- Python 3.10 o superior
-- Git Bash
-- Laragon con MySQL 8
-- Conexión a Internet para instalar dependencias
+- Python 3.10 o posterior.
+- Dependencias instaladas desde `requirements.txt`.
+- SQLite funciona como base de datos predeterminada y no requiere instalación adicional.
+- MySQL con Laragon es opcional.
 
-## Instalación en otro computador
+## Instalación y ejecución normal
 
-1. Descargar o clonar el repositorio.
-2. Abrir Git Bash en la carpeta del proyecto.
-3. Crear y activar el entorno virtual:
+Todos los comandos se ejecutan desde la carpeta raíz del proyecto, donde se encuentra `manage.py`.
 
-    python -m venv .venv
-    source .venv/Scripts/activate
+### Windows PowerShell
 
-4. Instalar dependencias:
+```powershell
+py -3 -m venv .venv
+.\\.venv\\Scripts\\Activate.ps1
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py seed_tallerexpress
+python manage.py runserver
+```
 
-    python -m pip install -r requirements.txt
+### Windows CMD
 
-5. Crear el archivo de configuración:
+```bat
+py -3 -m venv .venv
+.venv\\Scripts\\activate.bat
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py seed_tallerexpress
+python manage.py runserver
+```
 
-    cp .env.example .env
+Abre <http://127.0.0.1:8000/ordenes/> en el navegador.
 
-6. Iniciar MySQL desde Laragon (Start All).
+La carga de datos de ejemplo es opcional. Para iniciar una base vacía, omite `python manage.py seed_tallerexpress`.
 
-7. Configurar .env según la instalación local:
+## Uso opcional de MySQL/Laragon
 
-    DB_NAME=tallerexpress
-    DB_USER=root
-    DB_PASSWORD=
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
+1. Copia `.env.example` como `.env`.
+2. Cambia `DB_ENGINE=sqlite` por `DB_ENGINE=mysql`.
+3. Revisa nombre, usuario, contraseña y puerto de MySQL.
+4. Inicia MySQL desde Laragon.
+5. Ejecuta las migraciones y, si se requieren, la carga de datos de ejemplo.
 
-8. Crear la base de datos:
+La configuración se realiza en `.env`; no es necesario modificar `tallerexpress/settings.py`.
 
-    python scripts/crear_base_mysql.py
+## Pruebas
 
-9. Aplicar migraciones:
+Con el entorno virtual activo:
 
-    python manage.py migrate
+```text
+python manage.py check
+python manage.py test ordenes
+```
 
-10. Cargar datos iniciales (solo en una base vacía):
+Las pruebas comprueban creación, edición, eliminación, paginación y validación de la relación entre clientes y vehículos.
 
-    python manage.py seed_tallerexpress
+Para la entrega, registra los resultados y evidencias directamente en el informe PDF solicitado.
 
-11. Iniciar el servidor:
+## Estructura principal
 
-    python manage.py runserver
+```text
+.
+├── manage.py
+├── requirements.txt
+├── .env.example
+├── tallerexpress/       # configuración Django
+├── ordenes/             # modelos, vistas, formularios y plantillas
+├── documentacion/       # informe PDF de la evidencia
+└── sql/                 # datos SQL de referencia
+```
 
-## Acceso
+## Alcance y limitaciones
 
-http://127.0.0.1:8000/ordenes/
+- La aplicación gestiona las órdenes y sus relaciones principales.
+- La notificación automática al cliente no está implementada; corresponde al caso CP-07 y queda fuera del alcance actual.
+- El consecutivo de órdenes está diseñado para el ejercicio académico y no contempla creación simultánea por múltiples usuarios.
+- Para producción se debe configurar una clave segura, `DEBUG=0` y un servidor adecuado.
 
-## Ejecutar pruebas
+## Entrega
 
-    python manage.py check
-
-    TALLEREXPRESS_TEST_SQLITE=1 python manage.py test ordenes
-
-## Consideraciones
-
-- La base de datos MySQL debe estar iniciada.
-- No ejecutar nuevamente la carga inicial si existen registros.
-- El archivo .env contiene configuración local y no debe publicarse.
-- El entorno virtual .venv no se incluye en Git.
-- La aplicación está preparada para uso académico local, no para producción.
+1. Verifica que el informe PDF de `documentacion/` contenga los datos reales y las evidencias solicitadas.
+2. Ejecuta las pruebas automatizadas y los casos manuales antes de entregar.
+3. Genera el ZIP únicamente cuando la documentación y el código estén verificados.

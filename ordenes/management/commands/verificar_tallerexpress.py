@@ -1,14 +1,9 @@
-"""Resume datos de MySQL sin tratar las operaciones legítimas de CRUD como fallos."""
+"""Comprobación de datos para documentación y cierre de evidencia."""
 from django.core.management.base import BaseCommand, CommandError
 from ordenes.models import Cliente, Vehiculo, Mecanico, OrdenServicio
 
-
 class Command(BaseCommand):
-    help = 'Muestra conteos actuales. --semilla-original verifica exactamente la carga inicial.'
-
-    def add_arguments(self, parser):
-        parser.add_argument('--semilla-original', action='store_true',
-                            help='Exige los conteos originales antes de crear o eliminar órdenes.')
+    help = 'Comprueba los conteos y los registros del módulo TallerExpress.'
 
     def handle(self, *args, **options):
         counts = {
@@ -17,18 +12,9 @@ class Command(BaseCommand):
             'mecanico': Mecanico.objects.count(),
             'orden_servicio': OrdenServicio.objects.count(),
         }
-        for tabla, cantidad in counts.items():
-            self.stdout.write(f'{tabla}: {cantidad}')
-        ultima = OrdenServicio.objects.order_by('-id').values_list('numero_orden', flat=True).first()
-        self.stdout.write(f'Última orden por ID: {ultima or "(ninguna)"}')
-        if options['semilla_original']:
-            esperados = {'cliente': 20, 'vehiculo': 30, 'mecanico': 8, 'orden_servicio': 100}
-            if counts != esperados:
-                raise CommandError('Conteos diferentes de la semilla inicial. '
-                                   'Si ya usaste el CRUD, ejecuta sin --semilla-original.')
-            self.stdout.write(self.style.SUCCESS('Semilla inicial verificada.'))
-        else:
-            if not all(counts[tipo] > 0 for tipo in ('cliente', 'vehiculo', 'mecanico')):
-                raise CommandError('Faltan datos maestros de clientes, vehículos o mecánicos.')
-            self.stdout.write(self.style.SUCCESS('Consulta completada. '
-                'El total de órdenes puede variar después de crear o eliminar registros.'))
+        for table, count in counts.items():
+            self.stdout.write(f'{table}: {count}')
+        self.stdout.write(f'Última orden: {OrdenServicio.objects.order_by("-id").values_list("numero_orden", flat=True).first() or "(ninguna)"}')
+        if counts['orden_servicio'] < 100:
+            raise CommandError('No están cargadas las 100 órdenes de demostración.')
+        self.stdout.write(self.style.SUCCESS('Verificación finalizada.'))

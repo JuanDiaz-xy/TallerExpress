@@ -10,9 +10,6 @@ htmlcov/
 dist/
 *.log
 entregable_*.zip
-*.bak
-*.orig
-*.rej
 *.zip
+Thumbs.db
 .DS_Store
-respaldo_*/
