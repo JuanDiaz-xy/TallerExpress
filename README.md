@@ -1,55 +1,79 @@
-# TallerExpress — GA7-220501096-AA2-EV02
+# TallerExpress - GA7-220501096-AA2-EV02
 
-TallerExpress es una aplicación académica para registrar y consultar órdenes de servicio de un taller. Permite crear, editar, listar y eliminar órdenes, relacionando cada vehículo con su cliente y asignando, cuando corresponde, un mecánico.
+Aplicación web desarrollada en Django para gestionar órdenes de servicio de un taller mecánico. Permite registrar, consultar, editar y eliminar órdenes, relacionando clientes, vehículos y mecánicos.
+
+Repositorio: <https://github.com/JuanDiaz-xy/TallerExpress>
+
+## Funcionalidades
+
+- Registro y consulta de órdenes de servicio.
+- Edición del problema, mecánico asignado y estado de la orden.
+- Eliminación mediante `POST`, protección CSRF y confirmación previa.
+- Validación de la relación entre cliente y vehículo.
+- Estados controlados para el seguimiento de cada orden.
+- Listado paginado con 10 registros por página.
+- Interfaz web responsiva basada en Bootstrap y color rojo.
+- Carga opcional de 8 mecánicos, 20 clientes, 30 vehículos y 100 órdenes de ejemplo.
+- Nueve pruebas automatizadas.
 
 ## Requisitos
 
 - Python 3.10 o posterior.
-- Dependencias instaladas desde `requirements.txt`.
-- SQLite funciona como base de datos predeterminada y no requiere instalación adicional.
-- MySQL con Laragon es opcional.
+- Conexión a Internet durante la instalación de dependencias.
+- SQLite, incluido con Python, para la ejecución predeterminada.
+- MySQL/Laragon únicamente si se desea utilizar ese motor de base de datos.
 
-## Instalación y ejecución normal
+## Instalación
 
-Todos los comandos se ejecutan desde la carpeta raíz del proyecto, donde se encuentra `manage.py`.
+Clona el repositorio y entra en su carpeta:
 
-### Windows PowerShell
+```text
+git clone https://github.com/JuanDiaz-xy/TallerExpress.git
+cd TallerExpress
+```
+
+### PowerShell
 
 ```powershell
 py -3 -m venv .venv
-.\\.venv\\Scripts\\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
 python manage.py migrate
 python manage.py seed_tallerexpress
 python manage.py runserver
 ```
 
-### Windows CMD
+### Símbolo del sistema (CMD)
 
 ```bat
 py -3 -m venv .venv
-.venv\\Scripts\\activate.bat
+.venv\Scripts\activate.bat
 python -m pip install -r requirements.txt
 python manage.py migrate
 python manage.py seed_tallerexpress
 python manage.py runserver
 ```
 
-Abre <http://127.0.0.1:8000/ordenes/> en el navegador.
+Abre <http://127.0.0.1:8000/ordenes/>.
 
-La carga de datos de ejemplo es opcional. Para iniciar una base vacía, omite `python manage.py seed_tallerexpress`.
+`seed_tallerexpress` carga los datos de demostración y solo debe ejecutarse sobre una base vacía. Para trabajar sin datos iniciales, omite ese comando.
 
-## Uso opcional de MySQL/Laragon
+## Configuración de la base de datos
 
-1. Copia `.env.example` como `.env`.
+SQLite es la configuración predeterminada y no requiere un archivo `.env`.
+
+Para utilizar MySQL:
+
+1. Copia `.env.example` con el nombre `.env`.
 2. Cambia `DB_ENGINE=sqlite` por `DB_ENGINE=mysql`.
-3. Revisa nombre, usuario, contraseña y puerto de MySQL.
-4. Inicia MySQL desde Laragon.
-5. Ejecuta las migraciones y, si se requieren, la carga de datos de ejemplo.
+3. Completa los datos de conexión en `.env`.
+4. Inicia MySQL.
+5. Ejecuta `python manage.py migrate`.
+6. Ejecuta `python manage.py seed_tallerexpress` si necesitas los datos de ejemplo.
 
-La configuración se realiza en `.env`; no es necesario modificar `tallerexpress/settings.py`.
+El archivo `.env` contiene información local y está excluido del repositorio.
 
-## Pruebas
+## Pruebas y verificación
 
 Con el entorno virtual activo:
 
@@ -58,32 +82,59 @@ python manage.py check
 python manage.py test ordenes
 ```
 
-Las pruebas comprueban creación, edición, eliminación, paginación y validación de la relación entre clientes y vehículos.
-
-Para la entrega, registra los resultados y evidencias directamente en el informe PDF solicitado.
-
-## Estructura principal
+Resultado esperado:
 
 ```text
-.
-├── manage.py
-├── requirements.txt
-├── .env.example
-├── tallerexpress/       # configuración Django
-├── ordenes/             # modelos, vistas, formularios y plantillas
-├── documentacion/       # informe PDF de la evidencia
-└── sql/                 # datos SQL de referencia
+Ran 9 tests
+OK
 ```
 
-## Alcance y limitaciones
+Para comprobar los conteos después de cargar la semilla:
 
-- La aplicación gestiona las órdenes y sus relaciones principales.
-- La notificación automática al cliente no está implementada; corresponde al caso CP-07 y queda fuera del alcance actual.
-- El consecutivo de órdenes está diseñado para el ejercicio académico y no contempla creación simultánea por múltiples usuarios.
-- Para producción se debe configurar una clave segura, `DEBUG=0` y un servidor adecuado.
+```text
+python manage.py verificar_tallerexpress
+```
 
-## Entrega
+## Estructura
 
-1. Verifica que el informe PDF de `documentacion/` contenga los datos reales y las evidencias solicitadas.
-2. Ejecuta las pruebas automatizadas y los casos manuales antes de entregar.
-3. Genera el ZIP únicamente cuando la documentación y el código estén verificados.
+```text
+TallerExpress/
+|-- manage.py
+|-- requirements.txt
+|-- .env.example
+|-- .gitignore
+|-- README.md
+|-- tallerexpress/           Configuración del proyecto Django
+|-- ordenes/                 Aplicación, modelos, vistas, plantillas y pruebas
+|-- sql/                     Datos SQL de referencia
+`-- documentacion/
+    |-- Informe_Evidencia_GA7-220501096-AA2-EV02.pdf
+    `-- capturas/            Evidencias visuales CP-01 a CP-06
+```
+
+## Documentación
+
+El informe final se encuentra en:
+
+```text
+documentacion/Informe_Evidencia_GA7-220501096-AA2-EV02.pdf
+```
+
+Las capturas de las pruebas manuales están en `documentacion/capturas/`.
+
+## Archivos excluidos de la entrega
+
+El repositorio y el ZIP final no incluyen:
+
+- `.venv/`
+- `.env`
+- `db.sqlite3`
+- `__pycache__/`
+- archivos `.pyc`
+- registros y archivos temporales
+
+Estos elementos se generan localmente y no son necesarios para instalar el proyecto en otro equipo.
+
+## Alcance
+
+El proyecto corresponde al módulo académico de órdenes de servicio. No incluye facturación, cotizaciones comerciales ni notificaciones automáticas al cliente.
